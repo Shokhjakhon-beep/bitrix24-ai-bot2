@@ -9,18 +9,19 @@ app = Flask(__name__)
 
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 BITRIX_WEBHOOK_URL = os.getenv("BITRIX_WEBHOOK_URL")
-RESPONSIBLE_ID = 1
+RESPONSIBLE_ID = 1  # kerak bo‘lsa, bu ID ni o‘zgartiring
 
 def send_to_telegram(chat_id, text):
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-    requests.post(url, json={"chat_id": chat_id, "text": text})
+    data = {"chat_id": chat_id, "text": text}
+    requests.post(url, json=data)
 
-def create_bitrix_task(task_text):
+def create_bitrix_task(text):
     url = f"{BITRIX_WEBHOOK_URL}/task.item.add.json"
     payload = {
         "fields": {
             "TITLE": "Заявка из Telegram-бота",
-            "DESCRIPTION": task_text,
+            "DESCRIPTION": text,
             "RESPONSIBLE_ID": RESPONSIBLE_ID
         }
     }
@@ -36,7 +37,7 @@ def telegram_webhook():
     if not text or not chat_id:
         return "no message"
 
-    if text == "/start":
+    if text.lower() == "/start":
         welcome_msg = (
             "Уважаемый клиент, здравствуйте!\n\n"
             "Мы рады приветствовать Вас в нашем информационном боте.\n\n"
